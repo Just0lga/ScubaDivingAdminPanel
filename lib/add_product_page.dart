@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
 import 'package:scuba_diving_admin_panel/main.dart';
-import 'package:scuba_diving_admin_panel/picture/s3_uploader_web.dart'; // http paketini import ettiğinizden emin olun
+import 'package:scuba_diving_admin_panel/picture/s3_uploader.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key, required this.id});
@@ -19,7 +19,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
   bool _isLoading = false;
 
-  // Form controllerları
   final TextEditingController nameController = TextEditingController();
   final TextEditingController brandController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -30,12 +29,10 @@ class _AddProductPageState extends State<AddProductPage> {
   List<CategoryItemModel> categoryItems = [];
   CategoryItemModel? selectedCategoryItem;
 
-  // FEATURES İÇİN YENİ EKLENEN KISIMLAR
-  // Her bir özellik için bir liste TextEditingController tutacağız
   final List<TextEditingController> _featureKeyControllers = [];
   final List<TextEditingController> _featureValueControllers = [];
 
-  final S3UploaderWeb _uploader = S3UploaderWeb();
+  final S3Uploader _uploader = S3Uploader();
   bool _isLoading2 = false;
   String? _uploadResult;
 
@@ -48,11 +45,11 @@ class _AddProductPageState extends State<AddProductPage> {
     try {
       await _uploader.pickAndUploadImage(nameController.text);
       setState(() {
-        _uploadResult = "Fotoğraf başarıyla yüklendi!";
+        _uploadResult = "Photo uploaded successfully!";
       });
     } catch (e) {
       setState(() {
-        _uploadResult = "Yükleme sırasında hata oluştu: $e";
+        _uploadResult = "An error occurred during upload: $e";
       });
     } finally {
       setState(() {
@@ -76,7 +73,6 @@ class _AddProductPageState extends State<AddProductPage> {
     stockController.dispose();
     descriptionController.dispose();
 
-    // Feature controller'larını da dispose etmeyi unutmayın
     for (var controller in _featureKeyControllers) {
       controller.dispose();
     }
@@ -86,7 +82,6 @@ class _AddProductPageState extends State<AddProductPage> {
     super.dispose();
   }
 
-  // Yeni bir özellik alanı eklemek için fonksiyon
   void _addFeatureField() {
     setState(() {
       _featureKeyControllers.add(TextEditingController());
@@ -94,7 +89,6 @@ class _AddProductPageState extends State<AddProductPage> {
     });
   }
 
-  // Bir özellik alanını kaldırmak için fonksiyon
   void _removeFeatureField(int index) {
     setState(() {
       _featureKeyControllers[index].dispose();
@@ -136,14 +130,10 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<bool> postProductToApi(Map<String, dynamic> productData) async {
-    // Android emülatör için localhost yerine 10.0.2.2 kullanın.
-    // iOS simülatör ve fiziksel cihaz için makinenizin yerel IP'sini veya localhost kullanın.
     String apiUrl = '$API_BASE_URL/api/Product';
 
     try {
-      print(
-        'Gönderilen ürün verisi: ${jsonEncode(productData)}',
-      ); // Hata ayıklama için
+      print('Sent product data: ${jsonEncode(productData)}');
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -154,19 +144,18 @@ class _AddProductPageState extends State<AddProductPage> {
       );
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        // Başarılı (2xx durum kodları)
-        print('Ürün başarıyla eklendi. Durum kodu: ${response.statusCode}');
-        print('Yanıt gövdesi: ${response.body}');
+        print(
+          'Product added successfully. Status code: ${response.statusCode}',
+        );
+        print('Response body: ${response.body}');
         return true;
       } else {
-        // API bir hata döndürdü
-        print('Ürün eklenemedi. Durum kodu: ${response.statusCode}');
-        print('Yanıt gövdesi: ${response.body}');
+        print('Failed to add product. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
         return false;
       }
     } catch (e) {
-      // Ağ isteği sırasında bir hata oluştu
-      print('API\'ye ürün gönderme hatası: $e');
+      print('Error sending product to API: $e');
       return false;
     }
   }
@@ -176,9 +165,9 @@ class _AddProductPageState extends State<AddProductPage> {
       return;
     }
     if (selectedCategoryItem == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir kategori seçin')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
       return;
     }
 
@@ -186,7 +175,6 @@ class _AddProductPageState extends State<AddProductPage> {
       _isLoading = true;
     });
 
-    // Features map'ini oluştur
     Map<String, dynamic> featuresMap = {};
     for (int i = 0; i < _featureKeyControllers.length; i++) {
       String key = _featureKeyControllers[i].text.trim();
@@ -196,7 +184,6 @@ class _AddProductPageState extends State<AddProductPage> {
       }
     }
 
-    // Güncel tarih ve saat
     DateTime now = DateTime.now();
 
     final productData = {
@@ -229,11 +216,10 @@ class _AddProductPageState extends State<AddProductPage> {
     });
 
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Ürün başarıyla eklendi!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product added successfully!')),
+      );
 
-      // Formu temizle
       nameController.clear();
       brandController.clear();
       priceController.clear();
@@ -242,9 +228,8 @@ class _AddProductPageState extends State<AddProductPage> {
       setState(() {
         selectedCategoryGroup = 1;
         categoryItems = _getList(selectedCategoryGroup);
-        selectedCategoryItem = null; // Alt kategoriyi sıfırla
+        selectedCategoryItem = null;
 
-        // Features alanlarını da sıfırla
         for (var controller in _featureKeyControllers) {
           controller.dispose();
         }
@@ -253,12 +238,12 @@ class _AddProductPageState extends State<AddProductPage> {
         }
         _featureKeyControllers.clear();
         _featureValueControllers.clear();
-        _addFeatureField(); // Yeni bir boş alan ekle
+        _addFeatureField();
       });
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Ürün eklenemedi.')));
+      ).showSnackBar(const SnackBar(content: Text('Failed to add product.')));
     }
   }
 
@@ -285,20 +270,19 @@ class _AddProductPageState extends State<AddProductPage> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Kategori Grupları
                         DropdownButtonFormField<int>(
                           value: selectedCategoryGroup,
                           decoration: const InputDecoration(
-                            labelText: 'Kategori Grubu',
+                            labelText: 'Category Group',
                             border: OutlineInputBorder(),
                           ),
                           items: const [
                             DropdownMenuItem(value: 1, child: Text('Scuba')),
                             DropdownMenuItem(
                               value: 2,
-                              child: Text('Zıpkın Avcılığı'),
+                              child: Text('Spearfishing'),
                             ),
-                            DropdownMenuItem(value: 3, child: Text('Yüzme')),
+                            DropdownMenuItem(value: 3, child: Text('Swimming')),
                           ],
                           onChanged: (int? newValue) {
                             if (newValue != null) {
@@ -311,11 +295,10 @@ class _AddProductPageState extends State<AddProductPage> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        // Kategoriler
                         DropdownButtonFormField<CategoryItemModel>(
                           value: selectedCategoryItem,
                           decoration: const InputDecoration(
-                            labelText: 'Kategori',
+                            labelText: 'Category',
                             border: OutlineInputBorder(),
                           ),
                           items:
@@ -336,102 +319,93 @@ class _AddProductPageState extends State<AddProductPage> {
                           validator:
                               (value) =>
                                   value == null
-                                      ? 'Lütfen bir kategori seçin'
+                                      ? 'Please select a category'
                                       : null,
                         ),
                         const SizedBox(height: 16),
-                        // Ürün Adı
                         TextFormField(
                           controller: nameController,
                           decoration: const InputDecoration(
-                            labelText: 'Ürün Adı',
+                            labelText: 'Product Name',
                             border: OutlineInputBorder(),
                           ),
                           validator:
                               (value) =>
                                   value!.isEmpty
-                                      ? 'Lütfen bir ürün adı girin'
+                                      ? 'Please enter a product name'
                                       : null,
                         ),
                         const SizedBox(height: 16),
-                        // Marka
                         TextFormField(
                           controller: brandController,
                           decoration: const InputDecoration(
-                            labelText: 'Marka',
+                            labelText: 'Brand',
                             border: OutlineInputBorder(),
                           ),
                           validator:
                               (value) =>
                                   value!.isEmpty
-                                      ? 'Lütfen bir marka girin'
+                                      ? 'Please enter a brand'
                                       : null,
                         ),
                         const SizedBox(height: 16),
-                        // Fiyat
                         TextFormField(
                           controller: priceController,
                           decoration: const InputDecoration(
-                            labelText: 'Fiyat',
+                            labelText: 'Price',
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Lütfen bir fiyat girin';
+                              return 'Please enter a price';
                             }
                             if (double.tryParse(value) == null) {
-                              return 'Lütfen geçerli bir sayı girin';
+                              return 'Please enter a valid number';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-                        // Stok
                         TextFormField(
                           controller: stockController,
                           decoration: const InputDecoration(
-                            labelText: 'Stok',
+                            labelText: 'Stock',
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Lütfen stok miktarı girin';
+                              return 'Please enter stock quantity';
                             }
                             if (int.tryParse(value) == null) {
-                              return 'Lütfen geçerli bir tam sayı girin';
+                              return 'Please enter a valid integer';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-                        // Açıklama
                         TextFormField(
                           controller: descriptionController,
                           decoration: const InputDecoration(
-                            labelText: 'Açıklama',
+                            labelText: 'Description',
                             border: OutlineInputBorder(),
                           ),
                           maxLines: 3,
                         ),
                         const SizedBox(height: 24),
 
-                        // FEATURES ALANI
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Özellikler',
+                            'Features',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // Dinamik olarak eklenen özellik alanları
                         ListView.builder(
-                          shrinkWrap:
-                              true, // Listview'ı içeriğine göre boyutlandır
-                          physics:
-                              const NeverScrollableScrollPhysics(), // Kaydırma özelliğini kapat
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: _featureKeyControllers.length,
                           itemBuilder: (context, index) {
                             return Padding(
@@ -442,9 +416,9 @@ class _AddProductPageState extends State<AddProductPage> {
                                     child: TextFormField(
                                       controller: _featureKeyControllers[index],
                                       decoration: const InputDecoration(
-                                        labelText: 'Özellik Adı',
+                                        labelText: 'Feature Name',
                                         border: OutlineInputBorder(),
-                                        isDense: true, // Daha kompakt görünüm
+                                        isDense: true,
                                       ),
                                     ),
                                   ),
@@ -454,9 +428,9 @@ class _AddProductPageState extends State<AddProductPage> {
                                       controller:
                                           _featureValueControllers[index],
                                       decoration: const InputDecoration(
-                                        labelText: 'Değer',
+                                        labelText: 'Value',
                                         border: OutlineInputBorder(),
-                                        isDense: true, // Daha kompakt görünüm
+                                        isDense: true,
                                       ),
                                     ),
                                   ),
@@ -476,7 +450,7 @@ class _AddProductPageState extends State<AddProductPage> {
                           child: TextButton.icon(
                             onPressed: _addFeatureField,
                             icon: const Icon(Icons.add),
-                            label: const Text('Özellik Ekle'),
+                            label: const Text('Add Feature'),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -509,13 +483,12 @@ class _AddProductPageState extends State<AddProductPage> {
                             _uploadResult!,
                             style: TextStyle(
                               color:
-                                  _uploadResult!.contains("hata")
+                                  _uploadResult!.contains("error")
                                       ? Colors.red
                                       : Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                         GestureDetector(
                           onTap: _addProduct,
                           child: Container(

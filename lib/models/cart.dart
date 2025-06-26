@@ -9,8 +9,7 @@ class Cart with _$Cart {
     required String userId,
     required int productId,
     required int quantity,
-  }) = _Cart; // Burası düzeltildi: _Cart oldu
+  }) = _Cart;
 
-  factory Cart.fromJson(Map<String, dynamic> json) =>
-      _$CartFromJson(json); // Burası düzeltildi: _$CartFromJson oldu
+  factory Cart.fromJson(Map<String, dynamic> json) => _$CartFromJson(json);
 }

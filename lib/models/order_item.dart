@@ -11,7 +11,7 @@ class OrderItem with _$OrderItem {
     required int productId,
     required String name,
     required int quantity,
-    required double price, // Backend'deki decimal'e karşılık double
+    required double price,
   }) = _OrderItem;
 
   factory OrderItem.fromJson(Map<String, dynamic> json) =>

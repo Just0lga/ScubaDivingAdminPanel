@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/add_product_page.dart';
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL buradan geliyor
+import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/picture/picture.dart';
 import 'package:scuba_diving_admin_panel/update_product_page.dart';
 import 'package:scuba_diving_admin_panel/product_comments_page.dart';
@@ -27,14 +27,13 @@ class _AdminProductPageState extends State<AdminProductPage> {
 
   final ScrollController _scrollController = ScrollController();
 
-  // Maksimum ID'yi tutacak değişken
-  int _maxProductId = 0; // Initialize with a default value
+  int _maxProductId = 0;
 
   @override
   void initState() {
     super.initState();
-    _fetchMaxProductId(); // Fetch max product ID first
-    _fetchProducts(); // Then fetch products
+    _fetchMaxProductId();
+    _fetchProducts();
     _scrollController.addListener(_onScroll);
   }
 
@@ -45,7 +44,6 @@ class _AdminProductPageState extends State<AdminProductPage> {
     super.dispose();
   }
 
-  // New method to fetch max product ID
   Future<void> _fetchMaxProductId() async {
     try {
       final uri = Uri.parse('$API_BASE_URL/api/Product/max-id');
@@ -131,7 +129,7 @@ class _AdminProductPageState extends State<AdminProductPage> {
       _hasMore = true;
       _errorMessage = null;
     });
-    await _fetchMaxProductId(); // Also refresh max ID on product refresh
+    await _fetchMaxProductId();
     await _fetchProducts();
   }
 
@@ -201,7 +199,6 @@ class _AdminProductPageState extends State<AdminProductPage> {
         actions: [
           IconButton(
             onPressed: () async {
-              // Ensure _maxProductId is fetched before navigating
               await _fetchMaxProductId();
               await Navigator.push(
                 context,
@@ -209,7 +206,7 @@ class _AdminProductPageState extends State<AdminProductPage> {
                   builder: (context) => AddProductPage(id: _maxProductId + 1),
                 ),
               );
-              _refreshProducts(); // Refresh products after adding a new one
+              _refreshProducts();
             },
             icon: Icon(Icons.add),
           ),
@@ -245,9 +242,9 @@ class _AdminProductPageState extends State<AdminProductPage> {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.5,
                   ),
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(4),
                   itemCount: _products.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index < _products.length) {
@@ -266,7 +263,6 @@ class _AdminProductPageState extends State<AdminProductPage> {
                               Expanded(
                                 child: Container(
                                   alignment: Alignment.center,
-                                  width: screenWidth,
                                   decoration: BoxDecoration(
                                     color: Colors.transparent,
                                     borderRadius: BorderRadius.circular(6),

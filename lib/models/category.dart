@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'category.freezed.dart'; // freezy kodu otomatik olarak burada oluşturulacak
-part 'category.g.dart'; // json_serializable kodu otomatik olarak burada oluşturulacak
+part 'category.freezed.dart';
+part 'category.g.dart';
 
 @freezed
 class Category with _$Category {

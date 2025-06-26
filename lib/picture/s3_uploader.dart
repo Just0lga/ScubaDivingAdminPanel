@@ -1,4 +1,4 @@
-/*import 'dart:io';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
@@ -7,8 +7,6 @@ import 'package:scuba_diving_admin_panel/main.dart';
 class S3Uploader {
   final ImagePicker _picker = ImagePicker();
 
-  // Dosya uzantısına göre content type dönen fonksiyon
-
   String getContentType(String fileName) {
     final ext = fileName.toLowerCase();
     if (ext.endsWith('.png')) return 'image/png';
@@ -16,65 +14,59 @@ class S3Uploader {
     return 'image/jpeg';
   }
 
-  Future<void> pickAndUploadImage(int id) async {
+  Future<void> pickAndUploadImage(String name) async {
     try {
-      // 1. Fotoğraf seçimi
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile == null) {
-        print("❗ Fotoğraf seçilmedi.");
+        print("❗ No image selected.");
         return;
       }
 
       final file = File(pickedFile.path);
       final fileName = basename(file.path);
-      print("📷 Seçilen dosya: $fileName");
+      print("📷 Selected file: $fileName");
 
-      // ContentType belirle
       final contentType = getContentType(fileName);
       String contentType2 = contentType.split('/').last;
       print("xxxxxx$contentType");
       print("xxxxxx$contentType2");
 
-      // 2. Presigned URL alma, contentType parametresini gönderiyoruz
       final urlResponse = await http.get(
         Uri.parse(
-          "$API_BASE_URL/api/S3/presigned-url?fileName=${id}-1.${contentType2}&contentType=$contentType",
+          "$API_BASE_URL/api/S3/presigned-url?fileName=${name}-1.${contentType2}&contentType=$contentType",
         ),
       );
 
       if (urlResponse.statusCode != 200) {
-        print("❗ Presigned URL alınamadı. Kod: ${urlResponse.statusCode}");
-        print("Yanıt: ${urlResponse.body}");
+        print("❗ Failed to get presigned URL. Code: ${urlResponse.statusCode}");
+        print("Response: ${urlResponse.body}");
         return;
       }
 
       final presignedUrl = urlResponse.body.replaceAll('"', '');
       print("🔗 Presigned URL: $presignedUrl");
 
-      // 3. Dosyayı byte olarak oku
       final fileBytes = await file.readAsBytes();
-      print("📦 Dosya boyutu: ${fileBytes.length} byte");
+      print("📦 File size: ${fileBytes.length} bytes");
 
-      // 4. PUT isteği ile yükleme, Content-Type header olarak gönderiliyor
       final putResponse = await http.put(
         Uri.parse(presignedUrl),
         headers: {"Content-Type": contentType},
         body: fileBytes,
       );
 
-      print("📤 PUT yanıt kodu: ${putResponse.statusCode}");
-      print("📤 PUT yanıt body: ${putResponse.body}");
+      print("📤 PUT response code: ${putResponse.statusCode}");
+      print("📤 PUT response body: ${putResponse.body}");
       print("Presigned URL: $presignedUrl");
-      print("Flutter UTC Saati: ${DateTime.now().toUtc()}");
+      print("Flutter UTC Time: ${DateTime.now().toUtc()}");
 
       if (putResponse.statusCode == 200) {
-        print("✅ Yükleme başarılı!");
+        print("✅ Upload successful!");
       } else {
-        print("❌ Yükleme başarısız. Hata kodu: ${putResponse.statusCode}");
+        print("❌ Upload failed. Error code: ${putResponse.statusCode}");
       }
     } catch (e) {
-      print("⚠️ Hata oluştu: $e");
+      print("⚠️ An error occurred: $e");
     }
   }
 }
-*/

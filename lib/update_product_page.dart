@@ -1,14 +1,13 @@
-// lib/update_product_page.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
-import 'package:scuba_diving_admin_panel/models/product.dart'; // Product modelini import edin
+import 'package:scuba_diving_admin_panel/main.dart';
+import 'package:scuba_diving_admin_panel/models/product.dart';
 
 class UpdateProductPage extends StatefulWidget {
-  final Product product; // Güncellenecek ürünü almak için
+  final Product product;
 
   const UpdateProductPage({super.key, required this.product});
 
@@ -29,7 +28,6 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
   List<CategoryItemModel> categoryItems = [];
   CategoryItemModel? selectedCategoryItem;
 
-  // FEATURES İÇİN EKLENEN KISIMLAR
   final List<TextEditingController> _featureKeyControllers = [];
   final List<TextEditingController> _featureValueControllers = [];
 
@@ -40,10 +38,8 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
     stockController.text = widget.product.stock.toString();
     descriptionController.text = widget.product.description ?? '';
 
-    // Kategori ve kategori grubunu ayarla
     _initializeCategorySelection(widget.product.categoryId);
 
-    // Features'ı doldur
     if (widget.product.features != null) {
       widget.product.features!.forEach((key, value) {
         _featureKeyControllers.add(TextEditingController(text: key));
@@ -72,7 +68,7 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
     }
 
     setState(() {
-      selectedCategoryGroup = foundGroup ?? 1; // Bulamazsa varsayılan 1
+      selectedCategoryGroup = foundGroup ?? 1;
       categoryItems = _getList(selectedCategoryGroup);
       selectedCategoryItem = foundCategoryItem;
     });
@@ -196,7 +192,6 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
       }
     }
 
-    // Güncel tarih ve saat (sadece updatedAt için)
     DateTime now = DateTime.now();
 
     final productData = {
@@ -211,14 +206,13 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
       "mainPictureUrl": widget.product.mainPictureUrl,
       "brand": widget.product.brand,
       "price": double.parse(priceController.text),
-      "discountPrice": widget.product.discountPrice, // Mevcut değeri koru
+      "discountPrice": widget.product.discountPrice,
       "stock": int.parse(stockController.text),
-      "reviewCount": widget.product.reviewCount, // Mevcut değeri koru
+      "reviewCount": widget.product.reviewCount,
       "features": featuresMap,
-      "isActive": widget.product.isActive, // Mevcut değeri koru
-      "favoriteCount": widget.product.favoriteCount, // Mevcut değeri koru
-      "createdAt":
-          widget.product.createdAt.toIso8601String(), // Mevcut değeri koru
+      "isActive": widget.product.isActive,
+      "favoriteCount": widget.product.favoriteCount,
+      "createdAt": widget.product.createdAt.toIso8601String(),
       "updatedAt": now.toIso8601String(),
     };
 
@@ -232,7 +226,7 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ürün başarıyla güncellendi!')),
       );
-      Navigator.pop(context); // Güncelleme sonrası önceki sayfaya dön
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(
         context,
@@ -242,7 +236,6 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -451,8 +444,6 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
   }
 }
 
-// CategoryItemModel, AddProductPage'dekiyle aynı olduğu için ayrı bir dosyada tanımlanıp import edilebilir.
-// Şimdilik burada tekrar tanımladım.
 class CategoryItemModel {
   final String name;
   final int id;

@@ -1,16 +1,15 @@
-// lib/product_comments_page.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
-import '../models/review.dart'; // Review modeli için
-import 'package:flutter_rating_bar/flutter_rating_bar.dart'; // YENİ IMPORT
+import 'package:scuba_diving_admin_panel/main.dart';
+import '../models/review.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class ProductCommentsPage extends StatefulWidget {
   final int productId;
-  final String productName; // Ürün adını da göstermek için ekledik
+  final String productName;
 
   const ProductCommentsPage({
     super.key,
@@ -53,7 +52,6 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
         final List<Review> fetchedReviews =
             reviewJsonList.map((json) => Review.fromJson(json)).toList();
 
-        // Ortalama puanı hesapla
         if (fetchedReviews.isNotEmpty) {
           double totalRating = fetchedReviews.fold(
             0,
@@ -138,7 +136,7 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
               ? const Center(child: CircularProgressIndicator())
               : Column(
                 children: [
-                  if (_averageRating != null) // Ortalama puan varsa göster
+                  if (_averageRating != null)
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -151,25 +149,21 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          // Ortalama puanı yıldızlarla göster
                           RatingBar.builder(
                             initialRating: _averageRating!,
-                            minRating: 0, // 0'dan başlasın
+                            minRating: 0,
                             direction: Axis.horizontal,
-                            allowHalfRating: true, // Yarım yıldızlara izin ver
+                            allowHalfRating: true,
                             itemCount: 5,
-                            itemSize: 24.0, // Yıldız boyutu
+                            itemSize: 24.0,
                             itemPadding: const EdgeInsets.symmetric(
                               horizontal: 2.0,
                             ),
                             itemBuilder:
                                 (context, _) =>
                                     const Icon(Icons.star, color: Colors.amber),
-                            onRatingUpdate: (rating) {
-                              // Bu sadece göstermek için, düzenleme yapılmayacak
-                            },
-                            ignoreGestures:
-                                true, // Kullanıcı müdahalesini engelle
+                            onRatingUpdate: (rating) {},
+                            ignoreGestures: true,
                           ),
                           Text(
                             '(${_averageRating!.toStringAsFixed(1)})',
@@ -207,14 +201,12 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            // Her bir yorumun puanını yıldızlarla göster
                                             RatingBar.builder(
                                               initialRating:
                                                   review.rating.toDouble(),
                                               minRating: 0,
                                               direction: Axis.horizontal,
-                                              allowHalfRating:
-                                                  false, // Yorumlar tam sayı olduğu için
+                                              allowHalfRating: false,
                                               itemCount: 5,
                                               itemSize: 20.0,
                                               itemPadding:
@@ -226,14 +218,11 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
                                                     Icons.star,
                                                     color: Colors.amber,
                                                   ),
-                                              onRatingUpdate: (rating) {
-                                                // Yorum derecelendirmesi düzenlenemez
-                                              },
-                                              ignoreGestures:
-                                                  true, // Kullanıcı müdahalesini engelle
+                                              onRatingUpdate: (rating) {},
+                                              ignoreGestures: true,
                                             ),
                                             Text(
-                                              '(${review.rating})', // Sayısal değeri de gösterelim
+                                              '(${review.rating})',
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
@@ -250,7 +239,7 @@ class _ProductCommentsPageState extends State<ProductCommentsPage> {
                                         Align(
                                           alignment: Alignment.bottomRight,
                                           child: Text(
-                                            'User ID: ${review.userId.substring(0, 8)}...', // Kısaltılmış kullanıcı ID
+                                            'User ID: ${review.userId.substring(0, 8)}...',
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey[600],

@@ -1,11 +1,10 @@
-// lib/statistics_page.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
-import 'package:scuba_diving_admin_panel/models/order_item.dart'; // OrderItem modeliniz
+import 'package:scuba_diving_admin_panel/main.dart';
+import 'package:scuba_diving_admin_panel/models/order_item.dart';
 
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
@@ -15,8 +14,7 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
-  Map<String, int> _productSales =
-      {}; // Ürün adına göre satış adetlerini tutacak Map
+  Map<String, int> _productSales = {};
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -39,7 +37,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
       if (response.statusCode == 200) {
         final List<dynamic> orderItemJsonList = json.decode(response.body);
 
-        // Ürün satışlarını hesapla
         Map<String, int> salesData = {};
         for (var jsonItem in orderItemJsonList) {
           final orderItem = OrderItem.fromJson(jsonItem);
@@ -89,7 +86,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Satış verilerini adetlerine göre azalan sırada sıralayalım
     final sortedSales =
         _productSales.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
@@ -142,7 +138,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           children: [
                             Expanded(
                               child: Text(
-                                entry.key, // Ürün Adı
+                                entry.key,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -150,7 +146,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                             ),
                             Text(
-                              '${entry.value} Sold', // Satılan Adet
+                              '${entry.value} Sold',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.blueAccent,

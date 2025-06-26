@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
+import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/models/address.dart';
-import 'package:scuba_diving_admin_panel/models/order_item.dart'; // OrderItem modeliniz
+import 'package:scuba_diving_admin_panel/models/order_item.dart';
 
 class OrderDetailsPage extends StatefulWidget {
-  final int orderId; // Detaylarını göstereceğimiz siparişin ID'si
-  final String userId; // Kullanıcı ID'si
-  final int shippingAddressId; // Gönderim Adresi ID'si
+  final int orderId;
+  final String userId;
+  final int shippingAddressId;
 
   const OrderDetailsPage({
     super.key,
@@ -25,28 +25,27 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   List<OrderItem> _orderItems = [];
-  Address? _shippingAddress; // Gönderim Adresi nesnesi
-  String? _userName; // YENİ: Kullanıcı adı
-  bool _isLoading = false; // Sipariş kalemleri için
-  String? _errorMessage; // Sipariş kalemleri için hata mesajı
+  Address? _shippingAddress;
+  String? _userName;
+  bool _isLoading = false;
+  String? _errorMessage;
 
-  bool _isAddressLoading = false; // Adres yüklemesi için
-  String? _addressErrorMessage; // Adres hatası için
+  bool _isAddressLoading = false;
+  String? _addressErrorMessage;
 
-  bool _isUsernameLoading = false; // YENİ: Kullanıcı adı yüklemesi için
-  String? _usernameErrorMessage; // YENİ: Kullanıcı adı hatası için
+  bool _isUsernameLoading = false;
+  String? _usernameErrorMessage;
 
   @override
   void initState() {
     super.initState();
     _fetchOrderItems();
     _fetchShippingAddress();
-    _fetchUsername(); // YENİ: Kullanıcı adını çekmeye başla
+    _fetchUsername();
   }
 
-  // Mevcut fonksiyon: Sipariş kalemlerini çek
   Future<void> _fetchOrderItems() async {
-    if (!mounted) return; // Erken çıkış
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -92,9 +91,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     }
   }
 
-  // Mevcut fonksiyon: Gönderim Adresini Çekme
   Future<void> _fetchShippingAddress() async {
-    if (!mounted) return; // Erken çıkış
+    if (!mounted) return;
     setState(() {
       _isAddressLoading = true;
       _addressErrorMessage = null;
@@ -137,16 +135,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     }
   }
 
-  // YENİ FONKSİYON: Kullanıcı adını çekme
   Future<void> _fetchUsername() async {
-    if (!mounted) return; // Erken çıkış
+    if (!mounted) return;
     setState(() {
       _isUsernameLoading = true;
       _usernameErrorMessage = null;
     });
 
     try {
-      // API_BASE_URL'dan gelen kısmı doğru şekilde birleştiriyoruz
       final uri = Uri.parse('$API_BASE_URL/api/Auth/username/${widget.userId}');
       final response = await http.get(uri);
 
@@ -181,12 +177,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     }
   }
 
-  // Tüm veriyi yenileme fonksiyonu
   Future<void> _refreshAllData() async {
     await Future.wait([
       _fetchOrderItems(),
       _fetchShippingAddress(),
-      _fetchUsername(), // YENİ: Kullanıcı adını da yenile
+      _fetchUsername(),
     ]);
   }
 
@@ -204,7 +199,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _refreshAllData, // Tüm veriyi yenile
+            onPressed: _refreshAllData,
           ),
         ],
       ),
@@ -212,7 +207,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // YENİ: Kullanıcı Adı Bölümü
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Card(
@@ -249,7 +243,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               ),
             ),
 
-            // Gönderim Adresi Bölümü
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -301,7 +294,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               ),
             ),
 
-            // Sipariş Kalemleri Başlığı
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
@@ -310,7 +302,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               ),
             ),
 
-            // Sipariş Kalemleri Listesi
             _errorMessage != null
                 ? Center(
                   child: Column(
@@ -318,7 +309,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     children: [
                       Text('Error: $_errorMessage'),
                       ElevatedButton(
-                        onPressed: _refreshAllData, // Tüm veriyi yenile
+                        onPressed: _refreshAllData,
                         child: const Text('Retry'),
                       ),
                     ],

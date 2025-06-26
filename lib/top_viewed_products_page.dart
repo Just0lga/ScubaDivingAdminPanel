@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
+import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/picture/picture.dart';
-import '../models/product.dart'; // Product modeliniz için
+import '../models/product.dart';
 
 class TopViewedProductsPage extends StatefulWidget {
   const TopViewedProductsPage({super.key});
@@ -105,16 +105,14 @@ class _TopViewedProductsPageState extends State<TopViewedProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Ekran genişliğini al
     final screenWidth = MediaQuery.of(context).size.width;
-    // Ekran genişliğine göre sütun sayısını belirle
     int crossAxisCount;
     if (screenWidth < 600) {
-      crossAxisCount = 2; // Mobil cihazlar için 2 sütun
+      crossAxisCount = 2;
     } else if (screenWidth < 900) {
-      crossAxisCount = 3; // Tabletler için 3 sütun
+      crossAxisCount = 3;
     } else {
-      crossAxisCount = 4; // Masaüstü için 4 sütun
+      crossAxisCount = 4;
     }
 
     return Scaffold(
@@ -156,10 +154,10 @@ class _TopViewedProductsPageState extends State<TopViewedProductsPage> {
                 child: GridView.builder(
                   controller: _scrollController,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount, // Dinamik sütun sayısı
+                    crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.7, // Her bir öğenin en boy oranı
+                    childAspectRatio: 0.6,
                   ),
                   padding: const EdgeInsets.all(16),
                   itemCount: _products.length + (_isLoading ? 1 : 0),
@@ -235,8 +233,6 @@ class _TopViewedProductsPageState extends State<TopViewedProductsPage> {
                                   color: Colors.grey[600],
                                 ),
                               ),
-                              // Bu sayfada da ürün silme veya düzenleme butonları varsayılan olarak kaldırılmıştır.
-                              // Sadece bir görüntüleme sayfası olduğu varsayılmıştır.
                             ],
                           ),
                         ),

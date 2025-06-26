@@ -11,16 +11,12 @@ class Product with _$Product {
     required int categoryId,
     required String brand,
     required double price,
-    @Default(0.0)
-    double
-    discountPrice, // Varsayılan değer ekleyerek null gelme ihtimaline karşı koruma
+    @Default(0.0) double discountPrice,
     required int stock,
-    String? description, // Nullable
-    @Default(0)
-    int
-    reviewCount, // Varsayılan değer ekleyerek null gelme ihtimaline karşı koruma
-    Map<String, dynamic>? features, // Nullable Map
-    @Default(true) bool isActive, // Varsayılan değer
+    String? description,
+    @Default(0) int reviewCount,
+    Map<String, dynamic>? features,
+    @Default(true) bool isActive,
     @Default(0) int favoriteCount,
     required DateTime createdAt,
     required DateTime updatedAt,

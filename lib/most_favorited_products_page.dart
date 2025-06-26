@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
+import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/picture/picture.dart';
-import '../models/product.dart'; // Product modeliniz için
+import '../models/product.dart';
 
 class MostFavoritedProductsPage extends StatefulWidget {
   const MostFavoritedProductsPage({super.key});
@@ -20,7 +20,7 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
   int _currentPage = 1;
   final int _pageSize = 12;
   bool _isLoading = false;
-  bool _hasMore = true; // Daha fazla ürün olup olmadığını belirtir
+  bool _hasMore = true;
   String? _errorMessage;
 
   final ScrollController _scrollController = ScrollController();
@@ -39,15 +39,12 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
     super.dispose();
   }
 
-  /// En çok favorilenen ürünleri API'den sayfalama yaparak çeker.
   Future<void> _fetchProducts() async {
-    if (_isLoading || !_hasMore)
-      return; // Zaten yükleniyorsa veya daha fazlası yoksa çık
+    if (_isLoading || !_hasMore) return;
 
     setState(() {
       _isLoading = true;
-      _errorMessage =
-          null; // Yeni bir yükleme başlatırken önceki hatayı temizle
+      _errorMessage = null;
     });
 
     try {
@@ -59,7 +56,6 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
       if (response.statusCode == 200) {
         final List<dynamic> productJsonList = json.decode(response.body);
 
-        // Eğer gelen liste boşsa veya önceki sayfayla aynı ürünleri içeriyorsa, daha fazla ürün yoktur.
         if (productJsonList.isEmpty) {
           setState(() {
             _hasMore = false;
@@ -70,26 +66,22 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
 
           setState(() {
             _products.addAll(newProducts);
-            _currentPage++; // Bir sonraki sayfa için sayfa numarasını artır
+            _currentPage++;
           });
         }
       } else {
         setState(() {
           _errorMessage =
               'Failed to load most favorited products: Status code ${response.statusCode}. Please try again.';
-          _hasMore = false; // Hata durumunda daha fazla yüklemeyi durdur
+          _hasMore = false;
         });
-        print(
-          'API Error: ${response.statusCode} - ${response.body}',
-        ); // Hata detaylarını logla
+        print('API Error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'Network error: Could not connect to the server. $e';
-        _hasMore = false; // Hata durumunda daha fazla yüklemeyi durdur
-        print(
-          'Error fetching most favorited products: $e',
-        ); // İstisna detaylarını logla
+        _hasMore = false;
+        print('Error fetching most favorited products: $e');
       });
     } finally {
       setState(() {
@@ -98,9 +90,7 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
     }
   }
 
-  /// Kullanıcı listenin sonuna yaklaştığında daha fazla ürün yükler.
   void _onScroll() {
-    // Scroll konumunun %80'ine gelindiğinde ve yükleme yoksa ve daha fazla ürün varsa
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent * 0.8 &&
         !_isLoading &&
@@ -109,7 +99,6 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
     }
   }
 
-  /// Ürün listesini sıfırlar ve yeniden yükler.
   Future<void> _refreshProducts() async {
     setState(() {
       _products = [];
@@ -122,16 +111,14 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Ekran genişliğini al
     final screenWidth = MediaQuery.of(context).size.width;
-    // Ekran genişliğine göre sütun sayısını belirle
     int crossAxisCount;
     if (screenWidth < 600) {
-      crossAxisCount = 2; // Mobil cihazlar için 2 sütun
+      crossAxisCount = 2;
     } else if (screenWidth < 900) {
-      crossAxisCount = 3; // Tabletler için 3 sütun
+      crossAxisCount = 3;
     } else {
-      crossAxisCount = 4; // Masaüstü için 4 sütun
+      crossAxisCount = 4;
     }
 
     return Scaffold(
@@ -179,26 +166,21 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
                 child: GridView.builder(
                   controller: _scrollController,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount, // Dinamik sütun sayısı
+                    crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.7, // Her bir öğenin en boy oranı
+                    childAspectRatio: 0.6,
                   ),
                   padding: const EdgeInsets.all(16),
-                  itemCount:
-                      _products.length +
-                      (_hasMore
-                          ? 1
-                          : 0), // Daha fazla varsa yükleme göstergesi için +1
+                  itemCount: _products.length + (_hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _products.length) {
-                      // Listenin sonuna gelindiğinde ve daha fazla ürün varsa yükleme göstergesini göster
                       return _isLoading
                           ? const Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Center(child: CircularProgressIndicator()),
                           )
-                          : const SizedBox.shrink(); // Daha fazla yoksa boş bir kutu
+                          : const SizedBox.shrink();
                     }
 
                     final product = _products[index];
@@ -265,18 +247,13 @@ class _MostFavoritedProductsPageState extends State<MostFavoritedProductsPage> {
                               ),
                             ),
                             Text(
-                              'Number of Favorites: ${product.favoriteCount}', // Favori sayısı gösterimi
+                              'Number of Favorites: ${product.favoriteCount}',
                               style: TextStyle(
                                 fontSize: 12,
-                                color:
-                                    Colors.pink[400], // Renk biraz değiştirildi
-                                fontWeight:
-                                    FontWeight
-                                        .bold, // Favori sayısı daha belirgin
+                                color: Colors.pink[400],
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            // Bu sayfada ürün silme veya düzenleme butonları varsayılan olarak kaldırılmıştır.
-                            // Sadece bir görüntüleme sayfası olduğu varsayılmıştır.
                           ],
                         ),
                       ),

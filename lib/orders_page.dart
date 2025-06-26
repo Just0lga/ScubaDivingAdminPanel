@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/main.dart'; // API_BASE_URL için
-import 'package:scuba_diving_admin_panel/order_details_page.dart'; // OrderDetailsPage için import
-import '../models/order.dart'; // Order modeli
+import 'package:scuba_diving_admin_panel/main.dart';
+import 'package:scuba_diving_admin_panel/order_details_page.dart';
+import '../models/order.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -19,10 +19,55 @@ class _OrdersPageState extends State<OrdersPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  double _deliveredRevenue = 0.0;
+  double _inTransitRevenue = 0.0;
+  double _waitingRevenue = 0.0;
+
   @override
   void initState() {
     super.initState();
     _fetchOrders();
+    _fetchTotalRevenue();
+  }
+
+  Future<void> _fetchTotalRevenue() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final statuses = ['Delivered', 'In Transit', 'Waiting'];
+      for (var status in statuses) {
+        final uri = Uri.parse(
+          '$API_BASE_URL/api/Order/total-revenue?status=$status',
+        );
+        final response = await http.get(uri);
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          final double revenue = jsonResponse['totalAmount']?.toDouble() ?? 0.0;
+
+          setState(() {
+            if (status == 'Delivered') {
+              _deliveredRevenue = revenue;
+            } else if (status == 'In Transit') {
+              _inTransitRevenue = revenue;
+            } else if (status == 'Waiting') {
+              _waitingRevenue = revenue;
+            }
+          });
+        } else {
+          print(
+            'Failed to load total revenue for $status: Status code ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      print('API call error fetching total revenue: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchOrders() async {
@@ -66,11 +111,6 @@ class _OrdersPageState extends State<OrdersPage> {
     });
 
     try {
-      // API_BASE_URL'iniz doğrudan API portunuza işaret etmeli.
-      // Eğer API_BASE_URL'iniz hala 'http://localhost:5173' ise ve API'niz 7096'da ise,
-      // API_BASE_URL'i main.dart'ta 'https://localhost:7096' olarak ayarlamanız GEREKİR.
-      // Aksi takdirde, bu çağrı başarısız olabilir.
-      // Şu anki kod, doğrudan API_BASE_URL'i kullanıyor ve bir dönüşüm yapmıyor.
       final uri = Uri.parse('$API_BASE_URL/api/Order/$orderId/status');
 
       final response = await http.patch(
@@ -80,8 +120,8 @@ class _OrdersPageState extends State<OrdersPage> {
       );
 
       if (response.statusCode == 204 || response.statusCode == 200) {
-        // 200 de başarılı sayılabilir
-        await _fetchOrders(); // Durum güncellendikten sonra listeyi yeniden çek
+        await _fetchOrders();
+        await _fetchTotalRevenue();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Order #$orderId status updated to $newStatus'),
@@ -119,6 +159,7 @@ class _OrdersPageState extends State<OrdersPage> {
       _errorMessage = null;
     });
     await _fetchOrders();
+    await _fetchTotalRevenue();
   }
 
   Color _getStatusColor(String status) {
@@ -168,6 +209,52 @@ class _OrdersPageState extends State<OrdersPage> {
             onPressed: _refreshOrders,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(80.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildRevenueCard(
+                      'Delivered',
+                      _deliveredRevenue,
+                      ColorPalette.success,
+                    ),
+                    Icon(Icons.add, size: 16, color: Colors.white),
+                    _buildRevenueCard(
+                      'In Transit',
+                      _inTransitRevenue,
+                      Colors.deepOrange,
+                    ),
+                    Icon(Icons.add, size: 16, color: Colors.white),
+                    _buildRevenueCard(
+                      'Waiting',
+                      _waitingRevenue,
+                      ColorPalette.error,
+                    ),
+                    Icon(
+                      Icons.arrow_forward_outlined,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    _buildRevenueCard(
+                      'Total',
+                      _waitingRevenue + _inTransitRevenue + _deliveredRevenue,
+                      ColorPalette.white,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8.0),
+              ],
+            ),
+          ),
+        ),
       ),
       body:
           _errorMessage != null
@@ -202,19 +289,14 @@ class _OrdersPageState extends State<OrdersPage> {
                       elevation: 3,
                       child: GestureDetector(
                         onTap: () {
-                          // Navigator.push ile OrderDetailsPage'e userId ve shippingAddressId gönderiliyor
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
                                   (context) => OrderDetailsPage(
                                     orderId: order.id,
-                                    userId:
-                                        order
-                                            .userId, // Order modelinizde bu alan olmalı
-                                    shippingAddressId:
-                                        order
-                                            .shippingAddressId, // Order modelinizde bu alan olmalı
+                                    userId: order.userId,
+                                    shippingAddressId: order.shippingAddressId,
                                   ),
                             ),
                           );
@@ -295,6 +377,29 @@ class _OrdersPageState extends State<OrdersPage> {
                   },
                 ),
               ),
+    );
+  }
+
+  Widget _buildRevenueCard(String title, double revenue, Color color) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          '\$${revenue.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

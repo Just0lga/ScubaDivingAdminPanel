@@ -9,7 +9,7 @@ void main() {
   runApp(const MyApp());
   HttpOverrides.global = MyHttpOverrides();
 
-  API_BASE_URL = 'https://localhost:7096';
+  API_BASE_URL = 'https://justolga.site/api';
 }
 
 class MyHttpOverrides extends HttpOverrides {

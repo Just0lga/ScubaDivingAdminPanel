@@ -1,8 +1,3 @@
-//ürünleri görüntüleme
-//ürün ekleme
-//satış istatistikleri
-//kargo süreci
-//en çok favorilenenler ve en çok görüntülenenler
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
@@ -27,7 +22,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Welcome to The Scuba Living Admin Panel',
+          'Scuba Living Admin Panel',
           style: GoogleFonts.playfair(color: ColorPalette.white),
         ),
         backgroundColor: ColorPalette.primary,
