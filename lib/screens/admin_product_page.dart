@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:scuba_diving_admin_panel/add_product_page.dart';
+import 'package:scuba_diving_admin_panel/screens/add_product_page.dart';
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
 import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/picture/picture.dart';
-import 'package:scuba_diving_admin_panel/update_product_page.dart';
-import 'package:scuba_diving_admin_panel/product_comments_page.dart';
-import '../models/product.dart';
+import 'package:scuba_diving_admin_panel/screens/update_product_page.dart';
+import 'package:scuba_diving_admin_panel/screens/product_comments_page.dart';
+import '../../models/product.dart';
 
 class AdminProductPage extends StatefulWidget {
   const AdminProductPage({super.key});

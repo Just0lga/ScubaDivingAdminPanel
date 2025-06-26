@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
 import 'package:scuba_diving_admin_panel/main.dart';
 import 'package:scuba_diving_admin_panel/picture/picture.dart';
-import '../models/product.dart';
+import '../../models/product.dart';
 
 class TopViewedProductsPage extends StatefulWidget {
   const TopViewedProductsPage({super.key});

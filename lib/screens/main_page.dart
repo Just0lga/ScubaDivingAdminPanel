@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
-import 'package:scuba_diving_admin_panel/most_favorited_products_page.dart';
-import 'package:scuba_diving_admin_panel/orders_page.dart';
-import 'package:scuba_diving_admin_panel/admin_product_page.dart';
-import 'package:scuba_diving_admin_panel/statistics_page.dart';
-import 'package:scuba_diving_admin_panel/top_viewed_products_page.dart';
+import 'package:scuba_diving_admin_panel/screens/most_favorited_products_page.dart';
+import 'package:scuba_diving_admin_panel/screens/orders_page.dart';
+import 'package:scuba_diving_admin_panel/screens/admin_product_page.dart';
+import 'package:scuba_diving_admin_panel/screens/statistics_page.dart';
+import 'package:scuba_diving_admin_panel/screens/top_viewed_products_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

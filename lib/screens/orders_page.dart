@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:scuba_diving_admin_panel/color/color_palette.dart';
 import 'package:scuba_diving_admin_panel/main.dart';
-import 'package:scuba_diving_admin_panel/order_details_page.dart';
-import '../models/order.dart';
+import 'package:scuba_diving_admin_panel/screens/order_details_page.dart';
+import '../../models/order.dart';
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
